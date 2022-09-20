@@ -1,4 +1,4 @@
-name: some-repo-build-workflow
+name: APPLICATION_NAME-build-workflow
 
 on:
   push:
