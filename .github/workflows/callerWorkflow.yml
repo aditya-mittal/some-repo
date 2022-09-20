@@ -1,30 +1,43 @@
 name: some-repo-build-workflow
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  workflow_dispatch:
+    inputs:
+      Branch:
+        description: "Branch to Build"
+        required: true
+        default: "$default-branch"
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [10.x, 12.x, 14.x, 15.x]
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npm run build --if-present
-      - run: npm run lint
-      - run: npm test
-      - run: npm run coverage
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  call-wf:
+    uses: ORG/REPO/.github/workflows/java-gradle-wf.yml@master
+    with:
+      branch: master
+      octopus_secret_keys: "octopus-api-key,octopus-url,docker-user,docker-password,github-pat"
+      build_secret_keys: "helm-user,helm-password,docker-user,docker-password,github-pat,prismacloud-password,prismacloud-url,prismacloud-username"
+      github_pat_name: github-pat
+      docker_registry: https://mydocker.io/docker-registry
+      docker_image: some-repo
+      veracode_app_name: some-repo
+      service_name: some-repo
+      java_version: '11'
+      helm_repo_url: https://myhelmregistry.io
+      helm_push_plugin_version: 1.0.1
+      helm_chart_name: some-repo
+      helm_chart_dir: some-repo
+      helm_version: v3.4.0
+      octopus_client_version: '2'
+      octopus_client_image: my_octopus_image
+      octopus_space: OCTOPUS_SPACE
+      octopus_project_group: OCTOPUS_PROJECT_GROUP
+      octopus_project:  some-repo
+      octopus_lifecycle: OCTOPUS_LIFECYCLE
+      octopus_prerelease_lifecycle: OCTOPUS_LIFECYCLE
+      octopus_release_lifecycle: OCTOPUS_LIFECYCLE
+      octopus_deployment_package: Deploy Helm Upgrade/ValuesPack-1
+      octopus_worker_pool: Default Worker Pool
+      kong_step_name: KONG_STEP_NAME
+      octopus_helm_template: HELM_TEMPLATE
+    secrets:
+      azure_secret: ${{ secrets.AKV_SECRET }}
+      vault_name: AKV_VALUT_NAME
